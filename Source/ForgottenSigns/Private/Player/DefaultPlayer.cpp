@@ -1,5 +1,7 @@
 // Copyright (c) 2019 Vitaly Lifanov <vitaly@lifanoff.ru>
 
+#include "ForgottenSigns/Public/Player/InventoryComponent.h"
+
 #include "DefaultPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/InputComponent.h"
@@ -9,6 +11,8 @@
 
 
 ADefaultPlayer::ADefaultPlayer() {
+	inventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
+
 	cameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	cameraComponent->SetupAttachment(GetCapsuleComponent());
 	cameraComponent->RelativeLocation = FVector { -10.0f, 0.0f, 60.0f };
@@ -74,7 +78,7 @@ void ADefaultPlayer::StopJump() {
 }
 
 void ADefaultPlayer::StartRun() {
-	characterMovementComponent->MaxWalkSpeed *= RUNNIG_FACOR;
+	characterMovementComponent->MaxWalkSpeed *= RUNNIG_FACTOR;
 }
 
 void ADefaultPlayer::StopRun() {

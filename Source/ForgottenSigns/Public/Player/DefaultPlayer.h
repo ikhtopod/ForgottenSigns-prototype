@@ -7,22 +7,28 @@
 #include "DefaultPlayer.generated.h"
 
 
+class UInventoryComponent;
 class UCharacterMovementComponent;
 class UCameraComponent;
 
-UCLASS(BlueprintType, ClassGroup = "ForgottenSigns|Player")
+
+// Default Player
+UCLASS(ClassGroup = "ForgottenSigns", BlueprintType)
 class FORGOTTENSIGNS_API ADefaultPlayer : public ACharacter {
 	GENERATED_BODY()
 
 private:
-	static constexpr float RUNNIG_FACOR = 2.0f;
+	static constexpr float RUNNIG_FACTOR = 2.0f;
 
 private:
 	float walkSpeed = 0.0f;
 	UCharacterMovementComponent* characterMovementComponent = nullptr;
 
-	UPROPERTY(VisibleAnywhere, Category = "ForgottenSigns")
+	UPROPERTY(Category = "ForgottenSigns", VisibleDefaultsOnly)
 		UCameraComponent* cameraComponent = nullptr;
+
+	UPROPERTY(Category = "ForgottenSigns", VisibleDefaultsOnly)
+		UInventoryComponent* inventoryComponent = nullptr;
 
 public:
 	// Mouse Sensitivity
