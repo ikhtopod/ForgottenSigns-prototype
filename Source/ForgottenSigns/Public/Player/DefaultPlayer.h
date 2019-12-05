@@ -24,15 +24,15 @@ private:
 	float walkSpeed = 0.0f;
 	UCharacterMovementComponent* characterMovementComponent = nullptr;
 
-	UPROPERTY(Category = "ForgottenSigns", VisibleDefaultsOnly)
+	UPROPERTY(VisibleDefaultsOnly, Category = "ForgottenSigns")
 		UCameraComponent* cameraComponent = nullptr;
 
-	UPROPERTY(Category = "ForgottenSigns", VisibleDefaultsOnly)
+	UPROPERTY(VisibleDefaultsOnly, Category = "ForgottenSigns")
 		UInventoryComponent* inventoryComponent = nullptr;
 
-public:
+protected:
 	// Mouse Sensitivity
-	UPROPERTY(Category = "ForgottenSigns|Mouse", EditAnywhere, BlueprintReadWrite, meta = (ClampMin = 0.0f, UIMin = 0.0f))
+	UPROPERTY(BlueprintReadWrite, Category = "ForgottenSigns|Mouse", meta = (ClampMin = 0.0f, UIMin = 0.0f))
 		float mouseSensitivity = 30.0f;
 
 public:

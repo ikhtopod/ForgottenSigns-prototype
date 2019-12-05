@@ -13,11 +13,34 @@ class FORGOTTENSIGNS_API UInventoryComponent : public UActorComponent {
 	GENERATED_BODY()
 
 public:
+	// Battery count
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ForgottenSigns", meta = (ClampMin = 0, UIMin = 0))
+		int32 battery = 0;
+
+	// Matches count
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ForgottenSigns", meta = (ClampMin = 0, UIMin = 0))
+		int32 matches = 0;
+
+public:
 	UInventoryComponent();
 
 protected:
 	virtual void BeginPlay() override;
 
 public:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	// Set battery: clamp min 0
+	UFUNCTION(BlueprintCallable, Category = "ForgottenSigns")
+		void SetBattery(int32 batteryValue);
+
+	// Has Battery
+	UFUNCTION(BlueprintCallable, Category = "ForgottenSigns")
+		bool HasBattery() const;
+
+	// Set matches: clamp min 0
+	UFUNCTION(BlueprintCallable, Category = "ForgottenSigns")
+		void SetMatches(int32 matchesValue);
+
+	// Has Matches
+	UFUNCTION(BlueprintCallable, Category = "ForgottenSigns")
+		bool HasMatches() const;
 };

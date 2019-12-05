@@ -1,8 +1,9 @@
 // Copyright (c) 2019 Vitaly Lifanov <vitaly@lifanoff.ru>
 
+#include "DefaultPlayer.h"
+
 #include "ForgottenSigns/Public/Player/InventoryComponent.h"
 
-#include "DefaultPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/InputComponent.h"
 #include "Camera/CameraComponent.h"
