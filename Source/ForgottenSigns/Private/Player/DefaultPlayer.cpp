@@ -3,6 +3,7 @@
 #include "DefaultPlayer.h"
 
 #include "ForgottenSigns/Public/Player/InventoryComponent.h"
+#include "ForgottenSigns/Public/Player/IndicatorsComponent.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/InputComponent.h"
@@ -13,6 +14,7 @@
 
 ADefaultPlayer::ADefaultPlayer() {
 	inventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
+	indicatorsComponent = CreateDefaultSubobject<UIndicatorsComponent>(TEXT("Indicators"));
 
 	cameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	cameraComponent->SetupAttachment(GetCapsuleComponent());

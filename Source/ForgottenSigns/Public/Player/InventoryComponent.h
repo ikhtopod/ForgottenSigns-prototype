@@ -14,11 +14,11 @@ class FORGOTTENSIGNS_API UInventoryComponent : public UActorComponent {
 
 public:
 	// Battery count
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ForgottenSigns", meta = (ClampMin = 0, UIMin = 0))
+	UPROPERTY(EditDefaultsOnly, Category = "ForgottenSigns", meta = (ClampMin = 0, UIMin = 0))
 		int32 battery = 0;
 
 	// Matches count
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ForgottenSigns", meta = (ClampMin = 0, UIMin = 0))
+	UPROPERTY(EditDefaultsOnly, Category = "ForgottenSigns", meta = (ClampMin = 0, UIMin = 0))
 		int32 matches = 0;
 
 public:
@@ -28,19 +28,36 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+
+#pragma region Battery Functions
 	// Set battery: clamp min 0
 	UFUNCTION(BlueprintCallable, Category = "ForgottenSigns")
 		void SetBattery(int32 batteryValue);
 
+	// Get battery value
+	UFUNCTION(BlueprintPure, Category = "ForgottenSigns")
+		int32 GetBattery() const;
+
 	// Has Battery
-	UFUNCTION(BlueprintCallable, Category = "ForgottenSigns")
+	UFUNCTION(BlueprintPure, Category = "ForgottenSigns")
 		bool HasBattery() const;
+
+#pragma endregion
+
+#pragma region Matches Functions
 
 	// Set matches: clamp min 0
 	UFUNCTION(BlueprintCallable, Category = "ForgottenSigns")
 		void SetMatches(int32 matchesValue);
 
+	// Get matches value
+	UFUNCTION(BlueprintPure, Category = "ForgottenSigns")
+		int32 GetMatches() const;
+
 	// Has Matches
-	UFUNCTION(BlueprintCallable, Category = "ForgottenSigns")
+	UFUNCTION(BlueprintPure, Category = "ForgottenSigns")
 		bool HasMatches() const;
+
+#pragma endregion
+
 };

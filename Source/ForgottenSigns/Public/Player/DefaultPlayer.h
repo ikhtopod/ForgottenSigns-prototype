@@ -8,6 +8,7 @@
 
 
 class UInventoryComponent;
+class UIndicatorsComponent;
 class UCharacterMovementComponent;
 class UCameraComponent;
 
@@ -29,6 +30,9 @@ private:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "ForgottenSigns")
 		UInventoryComponent* inventoryComponent = nullptr;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "ForgottenSigns")
+		UIndicatorsComponent* indicatorsComponent = nullptr;
 
 protected:
 	// Mouse Sensitivity
