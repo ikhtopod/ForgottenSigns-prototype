@@ -14,7 +14,7 @@ class UCameraComponent;
 
 
 // Default Player
-UCLASS(ClassGroup = "ForgottenSigns", BlueprintType)
+UCLASS(BlueprintType, ClassGroup = "ForgottenSigns")
 class FORGOTTENSIGNS_API ADefaultPlayer : public ACharacter {
 	GENERATED_BODY()
 
