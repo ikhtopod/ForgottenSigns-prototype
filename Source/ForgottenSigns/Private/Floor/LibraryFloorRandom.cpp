@@ -9,6 +9,7 @@ ALibraryFloorRandom::ALibraryFloorRandom() {
 	libraryFloorComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LibraryFloorComponent"));
 	libraryFloorComponent->SetupAttachment(GetRootComponent());
 	libraryFloorComponent->SetMobility(EComponentMobility::Stationary);
+	libraryFloorComponent->bCastShadowAsTwoSided = true;
 }
 
 void ALibraryFloorRandom::BeginPlay() {
