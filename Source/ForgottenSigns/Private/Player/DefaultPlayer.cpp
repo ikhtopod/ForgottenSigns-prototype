@@ -20,7 +20,7 @@ ADefaultPlayer::ADefaultPlayer() {
 	cameraComponent->SetupAttachment(GetCapsuleComponent());
 	cameraComponent->RelativeLocation = FVector { -10.0f, 0.0f, 60.0f };
 	cameraComponent->bUsePawnControlRotation = true;
-	cameraComponent->PostProcessSettings.AutoExposureMinBrightness = 0.2f;
+	cameraComponent->PostProcessSettings.AutoExposureMinBrightness = 0.8f;
 	cameraComponent->PostProcessSettings.AutoExposureMaxBrightness = 1.0f;
 
 	characterMovementComponent = GetCharacterMovement();
