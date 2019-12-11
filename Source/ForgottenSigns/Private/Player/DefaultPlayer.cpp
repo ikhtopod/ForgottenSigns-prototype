@@ -20,8 +20,12 @@ ADefaultPlayer::ADefaultPlayer() {
 	cameraComponent->SetupAttachment(GetCapsuleComponent());
 	cameraComponent->RelativeLocation = FVector { -10.0f, 0.0f, 60.0f };
 	cameraComponent->bUsePawnControlRotation = true;
-	cameraComponent->PostProcessSettings.AutoExposureMinBrightness = 0.8f;
+	cameraComponent->PostProcessSettings.AutoExposureMethod = EAutoExposureMethod::AEM_Histogram;
+	cameraComponent->PostProcessSettings.AutoExposureBias = -2.0f;
+	cameraComponent->PostProcessSettings.AutoExposureMinBrightness = 0.005f;
 	cameraComponent->PostProcessSettings.AutoExposureMaxBrightness = 1.0f;
+	cameraComponent->PostProcessSettings.AutoExposureSpeedUp = 4.0f;
+	cameraComponent->PostProcessSettings.AutoExposureSpeedDown = 4.0f;
 
 	characterMovementComponent = GetCharacterMovement();
 
