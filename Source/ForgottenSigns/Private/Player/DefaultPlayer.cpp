@@ -153,7 +153,7 @@ AActor* ADefaultPlayer::CheckInteract() {
 void ADefaultPlayer::Using() {
 	AActor* actor = CheckInteract();
 
-	if (canInteractive) {
+	if (canInteractive && actor) {
 		IInteractable::Execute_Interact(actor);
 	}
 }
