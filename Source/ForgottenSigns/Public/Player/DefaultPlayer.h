@@ -41,6 +41,10 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "ForgottenSigns|Mouse", meta = (ClampMin = 0.0f, UIMin = 0.0f))
 		float mouseSensitivity = 30.0f;
 
+	// Character can interact with an object which implements the Interactable interface
+	UPROPERTY(BlueprintReadOnly, Category = "ForgottenSigns")
+		bool canInteractive = false;
+
 public:
 	ADefaultPlayer();
 
@@ -61,10 +65,12 @@ private:
 	void StartCrouch();
 	void StopCrouch();
 
+	AActor* CheckInteract();
 	void Using();
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float deltaTime) override;
 
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* inputComponent) override;

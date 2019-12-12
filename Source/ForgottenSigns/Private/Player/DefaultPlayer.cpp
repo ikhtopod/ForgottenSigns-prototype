@@ -52,6 +52,13 @@ bool ADefaultPlayer::IsInteractableActor(AActor* actor) {
 
 void ADefaultPlayer::BeginPlay() {
 	Super::BeginPlay();
+	CheckInteract();
+}
+
+void ADefaultPlayer::Tick(float deltaTime) {
+	Super::Tick(deltaTime);
+
+	CheckInteract();
 }
 
 void ADefaultPlayer::SetupPlayerInputComponent(UInputComponent* inputComponent) {
@@ -115,7 +122,7 @@ void ADefaultPlayer::StopCrouch() {
 	this->UnCrouch();
 }
 
-void ADefaultPlayer::Using() {
+AActor* ADefaultPlayer::CheckInteract() {
 	FHitResult hitResult {};
 	FVector start { cameraComponent ? cameraComponent->GetComponentLocation() : GetActorLocation() };
 	FVector forwardVector { cameraComponent ? cameraComponent->GetForwardVector() : GetActorForwardVector() };
@@ -131,11 +138,22 @@ void ADefaultPlayer::Using() {
 		if (hitResult.bBlockingHit) {
 			AActor* catchActor = hitResult.GetActor();
 
-			// To determine if an actor implements an interface in both C++ and Blueprints
 			if (ADefaultPlayer::IsInteractableActor(catchActor)) {
-				IInteractable::Execute_Interact(catchActor);
+				canInteractive = true;
+				return catchActor;
 			}//fi
 
 		}//fi
 	}//fi
+
+	canInteractive = false;
+	return nullptr;
+}
+
+void ADefaultPlayer::Using() {
+	AActor* actor = CheckInteract();
+
+	if (canInteractive) {
+		IInteractable::Execute_Interact(actor);
+	}
 }
