@@ -4,12 +4,19 @@
 
 #include "ForgottenSigns/Public/Player/InventoryComponent.h"
 #include "ForgottenSigns/Public/Player/IndicatorsComponent.h"
+#include "ForgottenSigns/Public/Interfaces/Interactable.h"
 
+#include "Engine/World.h"
+#include "Engine/EngineTypes.h"
+#include "GameFramework/WorldSettings.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/Controller.h"
 #include "Components/InputComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/WorldSettings.h"
+#include "DrawDebugHelpers.h"
+#include "CollisionQueryParams.h"
 
 
 ADefaultPlayer::ADefaultPlayer() {
@@ -39,6 +46,10 @@ ADefaultPlayer::ADefaultPlayer() {
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+bool ADefaultPlayer::IsInteractableActor(AActor* actor) {
+	return actor->GetClass()->ImplementsInterface(UInteractable::StaticClass());
+}
+
 void ADefaultPlayer::BeginPlay() {
 	Super::BeginPlay();
 }
@@ -60,6 +71,8 @@ void ADefaultPlayer::SetupPlayerInputComponent(UInputComponent* inputComponent) 
 
 	inputComponent->BindAction(TEXT("Crouch"), EInputEvent::IE_Pressed, this, &ADefaultPlayer::StartCrouch);
 	inputComponent->BindAction(TEXT("Crouch"), EInputEvent::IE_Released, this, &ADefaultPlayer::StopCrouch);
+
+	inputComponent->BindAction(TEXT("Use"), EInputEvent::IE_Pressed, this, &ADefaultPlayer::Using);
 }
 
 void ADefaultPlayer::MoveForward(float scaleValue) {
@@ -100,4 +113,29 @@ void ADefaultPlayer::StartCrouch() {
 
 void ADefaultPlayer::StopCrouch() {
 	this->UnCrouch();
+}
+
+void ADefaultPlayer::Using() {
+	FHitResult hitResult {};
+	FVector start { cameraComponent ? cameraComponent->GetComponentLocation() : GetActorLocation() };
+	FVector forwardVector { cameraComponent ? cameraComponent->GetForwardVector() : GetActorForwardVector() };
+	FVector end { (forwardVector * interactLength) + start };
+
+	bool lineTraceResult = GetWorld()->LineTraceSingleByChannel(
+		hitResult, start, end, ECollisionChannel::ECC_Visibility,
+		FCollisionQueryParams::DefaultQueryParam,
+		FCollisionResponseParams::DefaultResponseParam
+	);
+
+	if (lineTraceResult) {
+		if (hitResult.bBlockingHit) {
+			AActor* catchActor = hitResult.GetActor();
+
+			// To determine if an actor implements an interface in both C++ and Blueprints
+			if (ADefaultPlayer::IsInteractableActor(catchActor)) {
+				IInteractable::Execute_Interact(catchActor);
+			}//fi
+
+		}//fi
+	}//fi
 }

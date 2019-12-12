@@ -17,7 +17,7 @@ protected:
 		int32 currentLibraryFloor = 0;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ForgottenSigns")
-		TArray<UStaticMesh*> libraryFloors {};
+		TArray<UStaticMesh*> libraryFloors;
 
 protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "ForgottenSigns")

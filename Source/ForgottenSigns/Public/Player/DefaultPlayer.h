@@ -22,6 +22,8 @@ private:
 	static constexpr float RUNNIG_FACTOR = 2.0f;
 
 private:
+	// length of inteact line
+	float interactLength = 180.0f;
 	float walkSpeed = 0.0f;
 	UCharacterMovementComponent* characterMovementComponent = nullptr;
 
@@ -43,6 +45,10 @@ public:
 	ADefaultPlayer();
 
 private:
+	// To determine if an actor implements an interface in both C++ and Blueprints
+	static bool IsInteractableActor(AActor* actor);
+
+private:
 	void MoveForward(float scaleValue);
 	void MoveRight(float scaleValue);
 	void Turn(float scaleValue);
@@ -54,6 +60,8 @@ private:
 	void StopRun();
 	void StartCrouch();
 	void StopCrouch();
+
+	void Using();
 
 protected:
 	virtual void BeginPlay() override;

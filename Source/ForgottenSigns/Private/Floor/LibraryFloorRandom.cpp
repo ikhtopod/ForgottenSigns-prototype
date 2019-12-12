@@ -4,7 +4,7 @@
 #include "Components/StaticMeshComponent.h"
 
 ALibraryFloorRandom::ALibraryFloorRandom() {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	libraryFloorComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LibraryFloorComponent"));
 	libraryFloorComponent->SetupAttachment(GetRootComponent());
@@ -20,7 +20,7 @@ void ALibraryFloorRandom::BeginPlay() {
 }
 
 void ALibraryFloorRandom::SetStaticMeshByCurrentIndex() {
-	if (!ensure(libraryFloorComponent) || ensure(libraryFloors.Num() == 0)) return;
+	if (libraryFloorComponent == nullptr || libraryFloors.Num() == 0) return;
 
 	libraryFloorComponent->SetStaticMesh(libraryFloors[currentLibraryFloor]);
 }
