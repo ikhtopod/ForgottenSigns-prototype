@@ -13,10 +13,8 @@
 			]
 		}
 	],
-	"Plugins": [],
 	"TargetPlatforms": [
 		"LinuxNoEditor",
-		"MacNoEditor",
 		"WindowsNoEditor"
 	]
 }
