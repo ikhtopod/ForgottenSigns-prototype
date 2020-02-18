@@ -34,23 +34,24 @@ public:
 public:
 	// Save actors which implemented the ISaveableActor interface
 	UFUNCTION(BlueprintCallable, Category = "SaveGameInstance")
-		void SaveGame();
+		void SaveBinaryData();
 
 	// Load actors which implemented the ISaveableActor interface
 	UFUNCTION(BlueprintCallable, Category = "SaveGameInstance")
-		void LoadGame();
+		void LoadBinaryData();
 
-	// Respawn saved actors
+	// Delete Binary Save File
 	UFUNCTION(BlueprintCallable, Category = "SaveGameInstance")
-		void RespawnActors();
+		void DeleteBinarySaveFile();
 
+	// Has Binary Save File
+	UFUNCTION(BlueprintPure, Category = "SaveGameInstance")
+		bool HasBinarySaveFile();
+
+public:
 	// Destory exists ISaveableActors objects
 	UFUNCTION(BlueprintCallable, Category = "SaveGameInstance")
-		void DestoryExistsSaveableActors();
-
-	// Delete Save File
-	UFUNCTION(BlueprintCallable, Category = "SaveGameInstance")
-		void DeleteSaveFile();
+		void DestroyExistsSaveableActors();
 
 private:
 	// Save Filename
@@ -58,5 +59,5 @@ private:
 
 private:
 	FORCEINLINE void FindSaveableActors(TArray<AActor*>& actors);
-	void LoadGame(FSSaveGameData& saveGameData);
+	void RespawnLoadedActors(FSSaveGameData& saveGameData);
 };
