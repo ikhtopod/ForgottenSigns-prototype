@@ -2,7 +2,7 @@
 
 #pragma once
 
-//#include "SActorSaveData.h"
+#include "CoreMinimal.h"
 #include "ForgottenSigns/Public/Gameplay/SaveAndLoad/SActorSaveData.h"
 #include "SSaveGameData.generated.h"
 
