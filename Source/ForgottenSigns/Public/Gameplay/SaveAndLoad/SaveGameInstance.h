@@ -23,11 +23,6 @@ private:
 	const int32 zOrder = 1000;
 
 public:
-	// Save Filename
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SaveGameInstance|Filename", meta = (Keyword = "save file name filename"))
-		FString saveFilename = "fs.sav";
-
-public:
 	// Standard lifetime of drop in seconds
 	UFUNCTION(BlueprintPure, Category = "SaveGameInstance|Constants", meta = (Keyword = "drop lifetime"))
 		FORCEINLINE	float GetDropLifetime() { return dropLifetime; }
@@ -53,9 +48,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "SaveGameInstance")
 		void DestoryExistsSaveableActors();
 
+	// Delete Save File
+	UFUNCTION(BlueprintCallable, Category = "SaveGameInstance")
+		void DeleteSaveFile();
+
 private:
-	FSSaveGameData m_saveGameData;
+	// Save Filename
+	static const FString m_saveFilename;
 
 private:
 	FORCEINLINE void FindSaveableActors(TArray<AActor*>& actors);
+	void LoadGame(FSSaveGameData& saveGameData);
 };

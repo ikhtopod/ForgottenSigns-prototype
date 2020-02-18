@@ -10,7 +10,12 @@
 #include "GameFramework/WorldSettings.h"
 #include "Kismet/GameplayStatics.h"
 #include "Serialization/BufferArchive.h"
+#include "HAL/PlatformFilemanager.h"
 #include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
+
+
+const FString USaveGameInstance::m_saveFilename { FPaths::GameSavedDir() + FString("SaveGames/") + "fs.sav" };
 
 void USaveGameInstance::SaveGame() {
 	TArray<FSActorSaveData> savedActors;
@@ -34,16 +39,18 @@ void USaveGameInstance::SaveGame() {
 		ISaveableActor::Execute_SaveActorData(actor);
 	}//rof
 
-	m_saveGameData.id = "1234";
-	m_saveGameData.timestamp = FDateTime::Now();
-	m_saveGameData.savedActors = savedActors;
+	FSSaveGameData saveGameData;
+
+	saveGameData.id = "1234";
+	saveGameData.timestamp = FDateTime::Now();
+	saveGameData.savedActors = savedActors;
 
 	FBufferArchive binaryData;
-	binaryData << m_saveGameData;
+	binaryData << saveGameData;
 
 	if (binaryData.Num() < 1) return;
 
-	if (FFileHelper::SaveArrayToFile(binaryData, *saveFilename)) {
+	if (FFileHelper::SaveArrayToFile(binaryData, *m_saveFilename)) {
 		UE_LOG(LogTemp, Warning, TEXT("Save Success! %s"), FPlatformProcess::BaseDir());
 	} else {
 		UE_LOG(LogTemp, Warning, TEXT("Save Failed!"));
@@ -53,10 +60,10 @@ void USaveGameInstance::SaveGame() {
 	binaryData.Empty();
 }
 
-void USaveGameInstance::LoadGame() {
+void USaveGameInstance::LoadGame(FSSaveGameData& saveGameData) {
 	TArray<uint8> binaryData;
 
-	if (FFileHelper::LoadFileToArray(binaryData, *saveFilename)) {
+	if (FFileHelper::LoadFileToArray(binaryData, *m_saveFilename)) {
 		UE_LOG(LogTemp, Warning, TEXT("Load Succeeded!"));
 	} else {
 		UE_LOG(LogTemp, Warning, TEXT("Load Failed!"));
@@ -71,15 +78,23 @@ void USaveGameInstance::LoadGame() {
 	FMemoryReader fromBinary = FMemoryReader(binaryData, true);
 	fromBinary.Seek(0);
 
-	fromBinary << m_saveGameData;
+	fromBinary << saveGameData;
 
 	fromBinary.FlushCache();
 	binaryData.Empty();
 	fromBinary.Close();
 }
 
+void USaveGameInstance::LoadGame() {
+	FSSaveGameData saveGameData;
+	LoadGame(saveGameData);
+}
+
 void USaveGameInstance::RespawnActors() {
-	for (FSActorSaveData actorRecord : m_saveGameData.savedActors) {
+	FSSaveGameData saveGameData;
+	LoadGame(saveGameData);
+
+	for (FSActorSaveData actorRecord : saveGameData.savedActors) {
 		FVector spawnPos = actorRecord.transform.GetLocation();
 		FRotator spawnRot = actorRecord.transform.Rotator();
 
@@ -96,6 +111,12 @@ void USaveGameInstance::RespawnActors() {
 			ISaveableActor::Execute_LoadActorData(newActor);
 		}//fi
 	}//rof
+}
+
+void USaveGameInstance::DeleteSaveFile() {
+	if (!FPlatformFileManager::Get().GetPlatformFile().DeleteFile(*m_saveFilename)) {
+		UE_LOG(LogTemp, Warning, TEXT("Couldn't delete file \"%s\""), *m_saveFilename);
+	}
 }
 
 void USaveGameInstance::DestoryExistsSaveableActors() {
