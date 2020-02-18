@@ -15,7 +15,14 @@
 #include "Misc/Paths.h"
 
 
-const FString USaveGameInstance::m_saveFilename { FPaths::GameSavedDir() + FString("SaveGames/") + "fs.sav" };
+const FString USaveGameInstance::m_saveFilename { "fs.sav" };
+
+FString USaveGameInstance::GetAbsolutePathSaveFilename() { return FPaths::ProjectSavedDir() + FString("SaveGames/") + m_saveFilename; }
+
+
+void USaveGameInstance::FindSaveableActors(TArray<AActor*>& actors) {
+	UGameplayStatics::GetAllActorsWithInterface(GetWorld(), USaveableActor::StaticClass(), actors);
+}
 
 
 void USaveGameInstance::SaveBinaryData() {
@@ -52,8 +59,8 @@ void USaveGameInstance::SaveBinaryData() {
 
 	if (binaryData.Num() < 1) return;
 
-	if (FFileHelper::SaveArrayToFile(binaryData, *m_saveFilename)) {
-		UE_LOG(LogTemp, Warning, TEXT("Save Success! %s"), *m_saveFilename);
+	if (FFileHelper::SaveArrayToFile(binaryData, *GetAbsolutePathSaveFilename())) {
+		UE_LOG(LogTemp, Warning, TEXT("Save Success! %s"), *GetAbsolutePathSaveFilename());
 	} else {
 		UE_LOG(LogTemp, Warning, TEXT("Save Failed!"));
 	}//fi
@@ -67,11 +74,11 @@ void USaveGameInstance::LoadBinaryData() {
 	TArray<uint8> binaryData;
 
 	if (!HasBinarySaveFile()) {
-		UE_LOG(LogTemp, Warning, TEXT("File \"%s\" not exists!"), *m_saveFilename);
+		UE_LOG(LogTemp, Warning, TEXT("File \"%s\" not exists!"), *GetAbsolutePathSaveFilename());
 		return;
 	}
 
-	if (FFileHelper::LoadFileToArray(binaryData, *m_saveFilename)) {
+	if (FFileHelper::LoadFileToArray(binaryData, *GetAbsolutePathSaveFilename())) {
 		UE_LOG(LogTemp, Warning, TEXT("Load Succeeded!"));
 	} else {
 		UE_LOG(LogTemp, Warning, TEXT("Load Failed!"));
@@ -99,17 +106,17 @@ void USaveGameInstance::LoadBinaryData() {
 
 void USaveGameInstance::DeleteBinarySaveFile() {
 	if (!HasBinarySaveFile()) {
-		UE_LOG(LogTemp, Warning, TEXT("File \"%s\" not exists!"), *m_saveFilename);
+		UE_LOG(LogTemp, Warning, TEXT("File \"%s\" not exists!"), *GetAbsolutePathSaveFilename());
 	}
 
-	if (!FPlatformFileManager::Get().GetPlatformFile().DeleteFile(*m_saveFilename)) {
-		UE_LOG(LogTemp, Warning, TEXT("Couldn't delete file \"%s\""), *m_saveFilename);
+	if (!FPlatformFileManager::Get().GetPlatformFile().DeleteFile(*GetAbsolutePathSaveFilename())) {
+		UE_LOG(LogTemp, Warning, TEXT("Couldn't delete file \"%s\""), *GetAbsolutePathSaveFilename());
 	}
 }
 
 
 bool USaveGameInstance::HasBinarySaveFile() {
-	return FPlatformFileManager::Get().GetPlatformFile().FileExists(*m_saveFilename);
+	return FPlatformFileManager::Get().GetPlatformFile().FileExists(*GetAbsolutePathSaveFilename());
 }
 
 
@@ -119,11 +126,6 @@ void USaveGameInstance::DestroyExistsSaveableActors() {
 
 	for (AActor* actor : actors)
 		actor->Destroy();
-}
-
-
-void USaveGameInstance::FindSaveableActors(TArray<AActor*>& actors) {
-	UGameplayStatics::GetAllActorsWithInterface(GetWorld(), USaveableActor::StaticClass(), actors);
 }
 
 

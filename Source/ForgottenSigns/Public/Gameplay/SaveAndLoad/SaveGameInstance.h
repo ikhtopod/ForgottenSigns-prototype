@@ -57,6 +57,8 @@ private:
 	// Save Filename
 	static const FString m_saveFilename;
 
+	FORCEINLINE FString GetAbsolutePathSaveFilename();
+
 private:
 	FORCEINLINE void FindSaveableActors(TArray<AActor*>& actors);
 	void RespawnLoadedActors(FSSaveGameData& saveGameData);
