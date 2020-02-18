@@ -27,6 +27,8 @@ void USaveGameInstance::SaveBinaryData() {
 	for (AActor* actor : actors) {
 		if (actor == nullptr) continue;
 
+		ISaveableActor::Execute_SaveActorData(actor);
+
 		FSActorSaveData actorRecord;
 		actorRecord.name = FName(*actor->GetName());
 		actorRecord.type = actor->GetClass()->GetPathName();
@@ -37,7 +39,6 @@ void USaveGameInstance::SaveBinaryData() {
 		actor->Serialize(ar);
 
 		savedActors.Add(actorRecord);
-		ISaveableActor::Execute_SaveActorData(actor);
 	}//rof
 
 	FSSaveGameData saveGameData;
@@ -141,6 +142,7 @@ void USaveGameInstance::RespawnLoadedActors(FSSaveGameData& saveGameData) {
 			FSSaveGameArchive ar(memoryReader);
 			newActor->Serialize(ar);
 			newActor->SetActorTransform(actorRecord.transform);
+
 			ISaveableActor::Execute_LoadActorData(newActor);
 		}//fi
 	}//rof
