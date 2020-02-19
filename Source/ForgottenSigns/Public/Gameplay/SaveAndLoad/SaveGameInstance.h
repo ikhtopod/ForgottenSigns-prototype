@@ -58,6 +58,7 @@ private:
 	static const FString m_saveFilename;
 
 	FORCEINLINE FString GetAbsolutePathSaveFilename();
+	FORCEINLINE FName GetCurrentLevelName();
 
 private:
 	FORCEINLINE void FindSaveableActors(TArray<AActor*>& actors);

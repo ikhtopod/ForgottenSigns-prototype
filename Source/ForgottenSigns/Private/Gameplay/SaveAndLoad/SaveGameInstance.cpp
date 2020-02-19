@@ -19,6 +19,8 @@ const FString USaveGameInstance::m_saveFilename { "fs.sav" };
 
 FString USaveGameInstance::GetAbsolutePathSaveFilename() { return FPaths::ProjectSavedDir() + FString("SaveGames/") + m_saveFilename; }
 
+FName USaveGameInstance::GetCurrentLevelName() { return GetWorld()->GetCurrentLevel()->GetFName(); }
+
 
 void USaveGameInstance::FindSaveableActors(TArray<AActor*>& actors) {
 	UGameplayStatics::GetAllActorsWithInterface(GetWorld(), USaveableActor::StaticClass(), actors);
