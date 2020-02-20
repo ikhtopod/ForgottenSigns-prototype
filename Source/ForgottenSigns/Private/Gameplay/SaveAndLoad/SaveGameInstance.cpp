@@ -140,14 +140,17 @@ void USaveGameInstance::RespawnLoadedActors(FSSaveGameData& saveGameData) {
 		spawnParams.Name = actorRecord.name;
 
 		UClass* spawnClass = FindObject<UClass>(ANY_PACKAGE, *actorRecord.type);
-		if (spawnClass) {
+		if (spawnClass && spawnClass->ImplementsInterface(USaveableActor::StaticClass())) {
 			AActor* newActor = GWorld->SpawnActor(spawnClass, &spawnPos, &spawnRot, spawnParams);
-			FMemoryReader memoryReader(actorRecord.data, true);
-			FSSaveGameArchive ar(memoryReader);
-			newActor->Serialize(ar);
-			newActor->SetActorTransform(actorRecord.transform);
 
-			ISaveableActor::Execute_LoadActorData(newActor);
+			if (newActor) {
+				FMemoryReader memoryReader(actorRecord.data, true);
+				FSSaveGameArchive ar(memoryReader);
+				newActor->Serialize(ar);
+				newActor->SetActorTransform(actorRecord.transform);
+
+				ISaveableActor::Execute_LoadActorData(newActor);
+			}//fi
 		}//fi
 	}//rof
 }
