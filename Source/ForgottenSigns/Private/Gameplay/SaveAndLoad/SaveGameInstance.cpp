@@ -19,8 +19,6 @@ const FString USaveGameInstance::m_saveFilename { "fs.sav" };
 
 FString USaveGameInstance::GetAbsolutePathSaveFilename() { return FPaths::ProjectSavedDir() + FString("SaveGames/") + m_saveFilename; }
 
-FName USaveGameInstance::GetCurrentLevelName() { return GetWorld()->GetCurrentLevel()->GetFName(); }
-
 
 void USaveGameInstance::FindSaveableActors(TArray<AActor*>& actors) {
 	UGameplayStatics::GetAllActorsWithInterface(GetWorld(), USaveableActor::StaticClass(), actors);
@@ -133,15 +131,29 @@ void USaveGameInstance::DestroyExistsSaveableActors() {
 
 void USaveGameInstance::RespawnLoadedActors(FSSaveGameData& saveGameData) {
 	for (FSActorSaveData actorRecord : saveGameData.savedActors) {
-		FVector spawnPos = actorRecord.transform.GetLocation();
-		FRotator spawnRot = actorRecord.transform.Rotator();
 
 		FActorSpawnParameters spawnParams;
 		spawnParams.Name = actorRecord.name;
 
+		FVector spawnPos = actorRecord.transform.GetLocation();
+		FRotator spawnRot = actorRecord.transform.Rotator();
+
 		UClass* spawnClass = FindObject<UClass>(ANY_PACKAGE, *actorRecord.type);
+
+		TArray<AActor*> foundActors {};
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), spawnClass, foundActors);
+
+		AActor* foundActorByName = nullptr;
+		for (AActor* foundActors : foundActors) {
+			if (foundActors && actorRecord.name == FName(*foundActors->GetName())) {
+				foundActorByName = foundActors;
+				break;
+			}
+		}
+
 		if (spawnClass && spawnClass->ImplementsInterface(USaveableActor::StaticClass())) {
-			AActor* newActor = GWorld->SpawnActor(spawnClass, &spawnPos, &spawnRot, spawnParams);
+			AActor* newActor = foundActorByName;
+			if (!newActor) newActor = GWorld->SpawnActor(spawnClass, &spawnPos, &spawnRot, spawnParams);
 
 			if (newActor) {
 				FMemoryReader memoryReader(actorRecord.data, true);
