@@ -1,6 +1,5 @@
 // Copyright (c) 2020 Vitaly Lifanov <vitaly@lifanoff.ru>
 
-
 #include "SaveGameInstance.h"
 
 #include "ForgottenSigns/Public/Gameplay/SaveAndLoad/SSaveGameArchive.h"
@@ -14,155 +13,151 @@
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 
+const FString USaveGameInstance::m_saveFilename{"fs.sav"};
 
-const FString USaveGameInstance::m_saveFilename { "fs.sav" };
-
-FString USaveGameInstance::GetAbsolutePathSaveFilename() { return FPaths::ProjectSavedDir() + FString("SaveGames/") + m_saveFilename; }
-
+FString USaveGameInstance::GetAbsolutePathSaveFilename() {
+    return FPaths::ProjectSavedDir() + FString("SaveGames/") + m_saveFilename;
+}
 
 void USaveGameInstance::FindSaveableActors(TArray<AActor*>& actors) {
-	UGameplayStatics::GetAllActorsWithInterface(GetWorld(), USaveableActor::StaticClass(), actors);
+    UGameplayStatics::GetAllActorsWithInterface(GetWorld(), USaveableActor::StaticClass(), actors);
 }
-
 
 void USaveGameInstance::SaveBinaryData() {
-	TArray<FSActorSaveData> savedActors;
+    TArray<FSActorSaveData> savedActors;
 
-	TArray<AActor*> actors;
-	FindSaveableActors(actors);
+    TArray<AActor*> actors;
+    FindSaveableActors(actors);
 
-	for (AActor* actor : actors) {
-		if (actor == nullptr) continue;
+    for (AActor* actor : actors) {
+        if (actor == nullptr)
+            continue;
 
-		ISaveableActor::Execute_SaveActorData(actor);
+        ISaveableActor::Execute_SaveActorData(actor);
 
-		FSActorSaveData actorRecord;
-		actorRecord.name = FName(*actor->GetName());
-		actorRecord.type = actor->GetClass()->GetPathName();
-		actorRecord.transform = actor->GetTransform();
+        FSActorSaveData actorRecord;
+        actorRecord.name = FName(*actor->GetName());
+        actorRecord.type = actor->GetClass()->GetPathName();
+        actorRecord.transform = actor->GetTransform();
 
-		FMemoryWriter memoryWriter { actorRecord.data, true };
-		FSSaveGameArchive ar { memoryWriter };
-		actor->Serialize(ar);
+        FMemoryWriter memoryWriter{actorRecord.data, true};
+        FSSaveGameArchive ar{memoryWriter};
+        actor->Serialize(ar);
 
-		savedActors.Add(actorRecord);
-	}//rof
+        savedActors.Add(actorRecord);
+    } //rof
 
-	FSSaveGameData saveGameData;
+    FSSaveGameData saveGameData;
 
-	saveGameData.id = "1234";
-	saveGameData.timestamp = FDateTime::Now();
-	saveGameData.savedActors = savedActors;
+    saveGameData.id = "1234";
+    saveGameData.timestamp = FDateTime::Now();
+    saveGameData.savedActors = savedActors;
 
-	FBufferArchive binaryData;
-	binaryData << saveGameData;
+    FBufferArchive binaryData;
+    binaryData << saveGameData;
 
-	if (binaryData.Num() < 1) return;
+    if (binaryData.Num() < 1)
+        return;
 
-	if (FFileHelper::SaveArrayToFile(binaryData, *GetAbsolutePathSaveFilename())) {
-		UE_LOG(LogTemp, Warning, TEXT("Save Success! %s"), *GetAbsolutePathSaveFilename());
-	} else {
-		UE_LOG(LogTemp, Warning, TEXT("Save Failed!"));
-	}//fi
+    if (FFileHelper::SaveArrayToFile(binaryData, *GetAbsolutePathSaveFilename())) {
+        UE_LOG(LogTemp, Warning, TEXT("Save Success! %s"), *GetAbsolutePathSaveFilename());
+    } else {
+        UE_LOG(LogTemp, Warning, TEXT("Save Failed!"));
+    } //fi
 
-	binaryData.FlushCache();
-	binaryData.Empty();
+    binaryData.FlushCache();
+    binaryData.Empty();
 }
-
 
 void USaveGameInstance::LoadBinaryData() {
-	TArray<uint8> binaryData;
+    TArray<uint8> binaryData;
 
-	if (!HasBinarySaveFile()) {
-		UE_LOG(LogTemp, Warning, TEXT("File \"%s\" not exists!"), *GetAbsolutePathSaveFilename());
-		return;
-	}
+    if (!HasBinarySaveFile()) {
+        UE_LOG(LogTemp, Warning, TEXT("File \"%s\" not exists!"), *GetAbsolutePathSaveFilename());
+        return;
+    }
 
-	if (FFileHelper::LoadFileToArray(binaryData, *GetAbsolutePathSaveFilename())) {
-		UE_LOG(LogTemp, Warning, TEXT("Load Succeeded!"));
-	} else {
-		UE_LOG(LogTemp, Warning, TEXT("Load Failed!"));
-		return;
-	}
+    if (FFileHelper::LoadFileToArray(binaryData, *GetAbsolutePathSaveFilename())) {
+        UE_LOG(LogTemp, Warning, TEXT("Load Succeeded!"));
+    } else {
+        UE_LOG(LogTemp, Warning, TEXT("Load Failed!"));
+        return;
+    }
 
-	if (binaryData.Num() <= 0) {
-		UE_LOG(LogTemp, Warning, TEXT("Loaded file empty!"));
-		return;
-	}
+    if (binaryData.Num() <= 0) {
+        UE_LOG(LogTemp, Warning, TEXT("Loaded file empty!"));
+        return;
+    }
 
-	FMemoryReader fromBinary { binaryData, true };
-	fromBinary.Seek(0);
+    FMemoryReader fromBinary{binaryData, true};
+    fromBinary.Seek(0);
 
-	FSSaveGameData saveGameData;
-	fromBinary << saveGameData;
+    FSSaveGameData saveGameData;
+    fromBinary << saveGameData;
 
-	fromBinary.FlushCache();
-	binaryData.Empty();
-	fromBinary.Close();
+    fromBinary.FlushCache();
+    binaryData.Empty();
+    fromBinary.Close();
 
-	RespawnLoadedActors(saveGameData);
+    RespawnLoadedActors(saveGameData);
 }
-
 
 void USaveGameInstance::DeleteBinarySaveFile() {
-	if (!HasBinarySaveFile()) {
-		UE_LOG(LogTemp, Warning, TEXT("File \"%s\" not exists!"), *GetAbsolutePathSaveFilename());
-	}
+    if (!HasBinarySaveFile()) {
+        UE_LOG(LogTemp, Warning, TEXT("File \"%s\" not exists!"), *GetAbsolutePathSaveFilename());
+    }
 
-	if (!FPlatformFileManager::Get().GetPlatformFile().DeleteFile(*GetAbsolutePathSaveFilename())) {
-		UE_LOG(LogTemp, Warning, TEXT("Couldn't delete file \"%s\""), *GetAbsolutePathSaveFilename());
-	}
+    if (!FPlatformFileManager::Get().GetPlatformFile().DeleteFile(*GetAbsolutePathSaveFilename())) {
+        UE_LOG(LogTemp, Warning, TEXT("Couldn't delete file \"%s\""), *GetAbsolutePathSaveFilename());
+    }
 }
-
 
 bool USaveGameInstance::HasBinarySaveFile() {
-	return FPlatformFileManager::Get().GetPlatformFile().FileExists(*GetAbsolutePathSaveFilename());
+    return FPlatformFileManager::Get().GetPlatformFile().FileExists(*GetAbsolutePathSaveFilename());
 }
-
 
 void USaveGameInstance::DestroyExistsSaveableActors() {
-	TArray<AActor*> actors;
-	FindSaveableActors(actors);
+    TArray<AActor*> actors;
+    FindSaveableActors(actors);
 
-	for (AActor* actor : actors)
-		actor->Destroy();
+    for (AActor* actor : actors)
+        actor->Destroy();
 }
 
-
 void USaveGameInstance::RespawnLoadedActors(FSSaveGameData& saveGameData) {
-	for (FSActorSaveData actorRecord : saveGameData.savedActors) {
+    for (FSActorSaveData actorRecord : saveGameData.savedActors) {
+        FActorSpawnParameters spawnParams;
+        spawnParams.Name = actorRecord.name;
 
-		FActorSpawnParameters spawnParams;
-		spawnParams.Name = actorRecord.name;
+        FVector spawnPos = actorRecord.transform.GetLocation();
+        FRotator spawnRot = actorRecord.transform.Rotator();
 
-		FVector spawnPos = actorRecord.transform.GetLocation();
-		FRotator spawnRot = actorRecord.transform.Rotator();
+        UClass* spawnClass = FindObject<UClass>(ANY_PACKAGE, *actorRecord.type);
 
-		UClass* spawnClass = FindObject<UClass>(ANY_PACKAGE, *actorRecord.type);
+        TArray<AActor*> foundActors{};
+        UGameplayStatics::GetAllActorsOfClass(GetWorld(), spawnClass, foundActors);
 
-		TArray<AActor*> foundActors {};
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), spawnClass, foundActors);
+        AActor* foundActorByName = nullptr;
+        for (AActor* foundActor : foundActors) {
+            if (foundActor && actorRecord.name == FName(*foundActor->GetName())) {
+                foundActorByName = foundActor;
+                break;
+            }
+        }
 
-		AActor* foundActorByName = nullptr;
-		for (AActor* foundActors : foundActors) {
-			if (foundActors && actorRecord.name == FName(*foundActors->GetName())) {
-				foundActorByName = foundActors;
-				break;
-			}
-		}
+        if (spawnClass && spawnClass->ImplementsInterface(USaveableActor::StaticClass())) {
+            AActor* newActor = foundActorByName;
+            if (!newActor)
+                newActor = GWorld->SpawnActor(spawnClass, &spawnPos, &spawnRot, spawnParams);
 
-		if (spawnClass && spawnClass->ImplementsInterface(USaveableActor::StaticClass())) {
-			AActor* newActor = foundActorByName;
-			if (!newActor) newActor = GWorld->SpawnActor(spawnClass, &spawnPos, &spawnRot, spawnParams);
+            if (newActor) {
+                FMemoryReader memoryReader(actorRecord.data, true);
+                FSSaveGameArchive ar(memoryReader);
+                newActor->Serialize(ar);
+                newActor->SetActorTransform(actorRecord.transform);
 
-			if (newActor) {
-				FMemoryReader memoryReader(actorRecord.data, true);
-				FSSaveGameArchive ar(memoryReader);
-				newActor->Serialize(ar);
-				newActor->SetActorTransform(actorRecord.transform);
-
-				ISaveableActor::Execute_LoadActorData(newActor);
-			}//fi
-		}//fi
-	}//rof
+                ISaveableActor::Execute_LoadActorData(newActor);
+            } //fi
+        } //fi
+    } //rof
 }
